@@ -14,31 +14,33 @@ editor_options:
 
 2.  What are the major benefits of using R projects? 
 
-> A: R projects provide a straightforward way to divide your work into multiple contexts. Each with their own: working directory, workspace, history, folder structure & source documents. It can make keeping analysis separate much easier.
+> A: R projects provide a straightforward way to divide your work into multiple contexts. Each with their own: working directory, workspace, history, folder structure & source documents. It can make keeping analysis separate much easier. It is easy to share and used with github.
 
 3.  What is git and what is github? 
 
-> A: Git is a version control software. Github is an online hosting service for Git-based projects.
+> A: Git is a version control software to help track the changes we commit to the files. Github is an online hosting service for Git-based projects.
 
 4.  What are the two main differences between a tibble and a data.frame? 
 
-> A: Two main differences between a tibble and a data.frame: tibbles get fancy printing with the default print() method; tibbles do not coerce down to a vector when you subset to only one column using \[.
+> A: Two main differences between a tibble and a data.frame: tibbles get fancy printing with the default print() method; tibbles do not coerce down to a vector when you subset to only one column using [.
 
 5.  Rewrite the following nested function call using baseR’s chaining operator:
 
-```{r}
-library(dplyr)
-arrange(filter(select(as_tibble(iris), 
+> library(dplyr)
+  arrange(filter(select(as_tibble(iris), 
                       starts_with("Petal"), 
                       Species), 
-               Petal.Length < 1.55), 
-        Species)
-```
+                 Petal.Length < 1.55), 
+          Species)
 
 > A: Using BaseR's chaining operator:
 
 ```{r}
-iris[order(iris$Species) & iris$Petal.Length < 1.55, 3:5]
+library(dplyr)
+as_tibble(iris) |>
+  select(starts_with("Petal"), Species) |> 
+  filter(Petal.Length < 1.55) |>
+  arrange(Species)
 ```
 
 6.  What is meant by long format data and wide format data? Which do we generally prefer for statistical analysis?
@@ -52,7 +54,6 @@ iris[order(iris$Species) & iris$Petal.Length < 1.55, 3:5]
 1. Read this data into R directly from the URL using functions from the tidyverse. Notice that the data doesn’t include column names - add those (in a manner of your choosing). Print out the tibble (just call the object name).
 
 ```{r}
-library(tidyverse)
 library(readr)
 glass_data <- read_delim("https://www4.stat.ncsu.edu/~online/datasets/glass.data",
                          delim = ",",
@@ -63,6 +64,7 @@ glass_data
 2. Start a chain that would overwrite the Type_of_glass variable using mutate(). Create a character string version (that is, replace 1 with “building_windows_float_processed”, 2 with “building_win. . . ”, etc.) instead (see the variable descriptions above to give meaningful values). (If you are familiar with factors, feel free to use that instead of a character string variable - otherwise, think if/then/else via ifelse().)
 
 ```{r}
+
 glass_data |> 
   mutate(Type_of_glass = ifelse(Type_of_glass == 1,
                                 "building_windows_float_processed",
@@ -153,6 +155,7 @@ white_wine_data
 names_wine_data <- read_excel("white-wine.xlsx",
                               sheet = excel_sheets("white-wine.xlsx")[2])
 colnames(white_wine_data) <- names_wine_data$Variables
+white_wine_data
 ```
 
 3. Lastly, add a column to this data set to indicate the wines are white. That is, add a column that has values of ‘white’ for every observation.
@@ -160,6 +163,7 @@ colnames(white_wine_data) <- names_wine_data$Variables
 ```{r}
 white_wine_data <- white_wine_data |> 
   mutate(wine_type = "white")
+white_wine_data
 ```
 
 4. There is a semi-colon delimited version of the red wine data set available at https://www4.stat.ncsu.edu/~online/datasets/red-wine.csv.
@@ -173,6 +177,7 @@ red_wine_data <- read_delim("https://www4.stat.ncsu.edu/~online/datasets/red-win
 colnames(red_wine_data) <- names_wine_data$Variables
 red_wine_data <- red_wine_data |>
   mutate(wine_type = "red")
+red_wine_data
 ```
 
 5. Combine these two data sets into one data set. They both have the exact same columns so this is an easy append task!
@@ -226,7 +231,6 @@ Download the Lahman.db file associated with the Connecting to Databases notes/vi
 1. Connect to the database and then look at all of the tables in the database.
 
 ```{r}
-library(RSQLite)
 library(DBI)
 con <- dbConnect(RSQLite::SQLite(), "lahman.db")
 dbListTables(con)
@@ -254,8 +258,10 @@ tbl(con, sql(
 
 ```{r}
 players_data <- tbl(con, "HallOfFame") |>
+  filter(inducted == "Y") |>
   select(playerID, yearID, category) |>
   collect()
+players_data
 ```
 
 5. Combine the table from the previous question with the People table in order to have the nameFirst and nameLast names added to what was returned above.
@@ -292,10 +298,9 @@ managers_data
 
 ```{r}
 result_data <- inner_join(players_data, 
-                       managers_data, 
-                       by = join_by(playerID == playerID)) |>
-  arrange(desc(career_win_percentage)) |>
-  collect()
+                          managers_data, 
+                          by = join_by(playerID == playerID)) |>
+  arrange(desc(career_win_percentage))
 result_data
 ```
 
