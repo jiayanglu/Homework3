@@ -1,5 +1,5 @@
 ---
-title: "Manipulating/reading data & database practice"
+title: "Manipulating/reading data & database practice_Jia Lu_ST558_HW3"
 format: html
 editor: visual
 editor_options: 
